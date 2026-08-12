@@ -40,11 +40,11 @@ def train():
     if not isinstance(correctNumber, int) or correctNumber < 0 or correctNumber > 9:
         return jsonify({"error": "Correct number must be between 0 and 9"}), 400
 
-    loss = network.train(inputs, correctNumber)
+    loss, prediction  = network.train(inputs, correctNumber)
     network.save()
 
     return jsonify({
-        "message": "Training example received",
+        "guess": prediction,
         "correctNumber": correctNumber,
         "loss": loss
     })
