@@ -72,7 +72,7 @@ class Network:
             difference = (outputLayer.nodesArray[node] - target[node]) #(output - target)²
             loss += difference ** 2
         loss = loss / 2
-        return loss, predict(inputs)
+        return loss, self.predict(inputs)
 
     def save(self):
         layersData = []
