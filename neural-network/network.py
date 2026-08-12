@@ -3,7 +3,7 @@ from layer import Layer
 class Network:
     def __init__(self):
         self.layers = []
-        self.networkShape = [400,64,10]
+        self.networkShape = [1600,64,10]
 
         for index in range(1, len(self.networkShape)): #for every layer in the network excluding the first
             n_inputs = self.networkShape[index - 1] #number of inputs are the nodes previous layer
@@ -21,3 +21,8 @@ class Network:
             currentValues = layer.nodesArray
         
         return currentValues
+
+    def predict(self, inputs):
+        endValues = self.forward(inputs)
+        prediction = endValues.index(max(endValues)) #returns the index of the largest value (final number)
+        return prediction

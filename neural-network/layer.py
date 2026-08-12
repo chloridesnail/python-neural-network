@@ -1,13 +1,20 @@
+import random
+
 class Layer:
-    def __init__(self, n_inputs, n_nodes): #creates the layer and sets up all the nodes
+    def __init__(self, n_inputs, n_nodes):
         self.n_inputs = n_inputs
         self.n_nodes = n_nodes
+
         self.weightsArray = []
-        self.biasesArray = [0]*n_nodes
-        self.nodesArray = [0]*n_nodes
+        self.biasesArray = [0] * n_nodes
+        self.nodesArray = [0] * n_nodes
 
         for node in range(self.n_nodes):
-            self.weightsArray[node] = [0]*n_inputs #creates the weights table for each node
+            nodeWeights = []
+
+            for inputIndex in range(self.n_inputs):
+                nodeWeights.append(random.uniform(-0.1, 0.1)) #creates the corresponding weights for the inputs
+            self.weightsArray.append(nodeWeights)
 
     def forward(self, inputs): #calculates all the values for the layer
         for node in range(self.n_nodes):
