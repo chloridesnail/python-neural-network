@@ -54,20 +54,6 @@ I implemented things including:
 * CSS
 * JSON
 
-## Project Structure
-
-```text
-neural-network/
-    layer.py
-    network.py
-    server.py
-
-web-application/
-    index.html
-    script.js
-    style.css
-```
-
 ### `layer.py`
 
 Contains the code for each neural network layer, including its weights, biases, nodes, forward calculations and activation.
