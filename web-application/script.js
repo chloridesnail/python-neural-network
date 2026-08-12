@@ -1,5 +1,9 @@
 const drawingCanvas = document.getElementById("drawingCanvas");
 const context = drawingCanvas.getContext("2d");
+const clearButton = document.getElementById("clearButton");
+
+console.log(drawingCanvas);
+console.log(clearButton);
 
 let isDrawing = false;
 drawingCanvas.addEventListener("mousedown", function() {
@@ -22,5 +26,10 @@ drawingCanvas.addEventListener("mousemove", function(event) {
     const cellX = column * cellSize; // converts the cell into coordinates
     const cellY = row * cellSize;
 
+    context.fillStyle = "black";
     context.fillRect(cellX, cellY, cellSize, cellSize);
 });
+clearButton.addEventListener("click", function() {
+    context.fillStyle = "white";
+    context.fillRect(0, 0, drawingCanvas.clientWidth, drawingCanvas.clientHeight)
+})
