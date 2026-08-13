@@ -15,4 +15,4 @@ class Layer:
         self.nodesArray = (self.weightsArray @ inputs) + self.biasesArray  #adds the bias
 
     def activate(self):
-        self.nodesArray = np.maximum(0, self.nodesArray)
+        self.nodesArray = np.maximum(0, self.nodesArray) #ReLU activation function
