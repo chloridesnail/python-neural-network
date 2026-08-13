@@ -1,4 +1,5 @@
 import random
+import numpy as np
 
 class Layer:
     def __init__(self, n_inputs, n_nodes):
