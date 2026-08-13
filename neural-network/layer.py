@@ -5,28 +5,13 @@ class Layer:
         self.n_inputs = n_inputs
         self.n_nodes = n_nodes
 
-        self.weightsArray = []
-        self.biasesArray = [0] * n_nodes
-        self.nodesArray = [0] * n_nodes
-
-        for node in range(self.n_nodes):
-            nodeWeights = []
-
-            for inputIndex in range(self.n_inputs):
-                nodeWeights.append(random.uniform(-0.1, 0.1)) #creates the corresponding weights for the inputs
-            self.weightsArray.append(nodeWeights)
+        # Creates the corresponding weights for the inputs using a 2D matrix
+        self.weightsArray = np.random.randn(n_nodes, n_inputs) * 0.01 
+        self.biasesArray = np.zeros(n_nodes)
+        self.nodesArray = np.zeros(n_nodes)
 
     def forward(self, inputs): #calculates all the values for the layer
-        for node in range(self.n_nodes):
-            self.nodesArray[node] = 0
-        
-        for node in range(self.n_nodes): #calculates the value for each node
-            #sum of weights times their corresponding inputs
-            for inputIndex in range(self.n_inputs):
-                self.nodesArray[node] += self.weightsArray[node][inputIndex] * inputs[inputIndex]
-            self.nodesArray[node] += self.biasesArray[node] #adds the bias
+        self.nodesArray = (self.weightsArray @ inputs) + self.biasesArray  #adds the bias
 
     def activate(self):
-        for node in range(self.n_nodes):
-            if self.nodesArray[node] < 0:
-                self.nodesArray[node] = 0
+        self.nodesArray = np.maximum(0, self.nodesArray)

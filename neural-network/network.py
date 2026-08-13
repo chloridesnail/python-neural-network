@@ -1,5 +1,6 @@
 from layer import Layer
 import json
+import numpy as np
 
 class Network:
     def __init__(self):
@@ -12,7 +13,7 @@ class Network:
             self.layers.append(Layer(n_inputs, n_nodes)) #creates the layer
 
     def forward(self, inputs):
-        currentValues = inputs
+        currentValues = np.array(inputs)
         for index, layer in enumerate(self.layers): #for every layer in the network
             layer.forward(currentValues)
 
@@ -25,7 +26,7 @@ class Network:
 
     def predict(self, inputs):
         endValues = self.forward(inputs)
-        prediction = endValues.index(max(endValues)) #returns the index of the largest value (final number)
+        prediction = np.argmax(endValues) #returns the index of the largest value (final number)
         return prediction
 
     def train(self, inputs, correctNumber):
@@ -33,45 +34,30 @@ class Network:
         outputs = self.forward(inputs)
         learningRate = 0.01
 
-        target = [0] * self.networkShape[-1] 
+        target = np.zeros(self.networkShape[-1])
         target[correctNumber] = 1
 
-        outputDeltas = []
+        outputDeltas = outputs - target #numpy makes array subtraction easier
         hiddenLayer = self.layers[0]
         outputLayer = self.layers[1]
-        for node in range(len(outputs)):
-            outputDeltas.append(outputs[node] - target[node])
 
         hiddenDeltas = []
-        for hiddenNode in range(hiddenLayer.n_nodes): #
-            error = 0
-            for outputNode in range(outputLayer.n_nodes):   #output delta x connected weight
-                error += outputDeltas[outputNode] * outputLayer.weightsArray[outputNode][hiddenNode] 
-            if hiddenLayer.nodesArray[hiddenNode] > 0: #ReLU activation function
-                reluDerivative = 1
-            else:
-                reluDerivative = 0 # below 0, = 0
-            error = error * reluDerivative
-            hiddenDeltas.append(error)
+        errors = outputLayer.weightsArray.T @ outputDeltas #output delta x connecting weight
+        reluDerivative = hiddenLayer.nodesArray > 0 # ReLU activation function
+        hiddenDeltas = errors * reluDerivative
         
-        for outputNode in range(outputLayer.n_nodes): #output layer
-            for hiddenNode in range(hiddenLayer.n_nodes): #weight change = learning rate × output delta × hidden node value
-                change = learningRate * outputDeltas[outputNode] * hiddenLayer.nodesArray[hiddenNode]
-                outputLayer.weightsArray[outputNode][hiddenNode] -= change
-            biasChange = learningRate * outputDeltas[outputNode] #bias change = learning rate x delta
-            outputLayer.biasesArray[outputNode] -= biasChange
-        for hiddenNode in range(hiddenLayer.n_nodes): #hidden layer
-            for inputIndex in range(hiddenLayer.n_inputs):
-                change = learningRate * hiddenDeltas[hiddenNode] * inputs[inputIndex]
-                hiddenLayer.weightsArray[hiddenNode][inputIndex] -= change
-            biasChange = learningRate * hiddenDeltas[hiddenNode]
-            hiddenLayer.biasesArray[hiddenNode] -= biasChange
+        #weight change = learning rate × output delta × hidden node value
+        outputLayer.weightsArray -= learningRate * np.outer(outputDeltas, hiddenLayer.nodesArray)
+        #bias change = learning rate x delta
+        outputLayer.biasesArray -= learningRate * outputDeltas
+        
+        #hidden layer weight change = learning rate x hidden delta x input value
+        hiddenLayer.weightsArray -= learningRate * np.outer(hiddenDeltas, inputs)
+        #hidden layer bias change = learning rate x hidden delta
+        hiddenLayer.biasesArray -= learningRate * hiddenDeltas
 
-        loss = 0
-        for node in range(outputLayer.n_nodes):
-            difference = (outputLayer.nodesArray[node] - target[node]) #(output - target)²
-            loss += difference ** 2
-        loss = loss / 2
+        #(output - target)²
+        loss = np.sum((outputLayer.nodesArray - target) ** 2) / 2
         return loss, self.predict(inputs)
 
     def save(self):
@@ -79,8 +65,8 @@ class Network:
 
         for layer in self.layers:
             layerData = { 
-                "weights": layer.weightsArray,
-                "biases": layer.biasesArray
+                "weights": layer.weightsArray.tolist(), #converts numpy array to list for json compatibility
+                "biases": layer.biasesArray.tolist()
             }
 
             layersData.append(layerData)
@@ -100,5 +86,5 @@ class Network:
         layersData = data["layers"]
 
         for index, layerData in enumerate(layersData):
-            self.layers[index].weightsArray = layerData["weights"]
-            self.layers[index].biasesArray = layerData["biases"]
+            self.layers[index].weightsArray = np.array(layerData["weights"]) #converts list back to numpy array
+            self.layers[index].biasesArray = np.array(layerData["biases"]) #converts list back to numpy array
